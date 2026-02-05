@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <title>{{page_title}}</title>
+        <style>
+            .first_title{
+                font-family: 'Arial', sans-serif;
+                color: #021325ff;
+            }
+            .cards{
+                list-style-type: none;
+                padding: 0;
+                font-family: 'Georgia', serif;
+                color: rgb(0, 0, 0);
+                border: 2px solid #3498db;
+                border-radius: 10px;
+                background: rgb(153, 128, 128);
+                margin: 20px;
+                padding: 20px;
+                font-size: 1.1em;
+                font-weight: bold;
+            }
+            .cards li{
+                margin-bottom: 10px;
+            }
+            .navigation{
+                margin-top: 30px;
+                font-family: 'Arial', sans-serif;
+                font-size: 1em;
+                color: #021325ff;
+                background: #a5a296ff;
+                padding: 15px;
+                
+                border-radius: 8px;
+            }
+            .postTitle{
+                font-size: 1.5em;
+                color: #2c3e50;
+                margin-bottom: 5px;
+            }
+            .edit-link{
+                display: inline-block;
+                margin-top: 10px;
+                padding: 8px 12px;
+                background: #2980b9;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+        </style>
+        <body>
+            <h1 class="first_title">wellcome to see the unpublished lists</h1>
+            <div>
+                <ol class="cards">
+                    {%for post in posts%}
+                    <li class="postTitle">TITLE:{{post.title}}</li>
+                    <li>Published Date:{{post.published_date|date:"F j, Y"}}</li>
+                    <li>Contents:{{post.content}}</li>
+                    <br>
+                    <a href="/blog/{{post.id}}/edit" class="edit-link">Edit this post </a>
+                    <small>👉Click edit, check "Publish" box, and save changes to publish.</small>
+                    {%empty%}
+                    <p>No unpublished posts available.</p>
+                    {%endfor%}
+                </ol>
+            </div>
+            <div class="navigation"> 
+                <h2>Go to the Admin page to publish or edit👉 <a href="/admin/">Admin Page</a></h2> |
+                <a href="/blog/">← Back to all posts</a> |<br>
+                <a href="/">Home</a>
+            </div>
+        </body>
+    </head>
+</html>    

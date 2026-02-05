@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - My Django Blog{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1>{{ title }}</h1>
+    
+    {% if post %}
+    <p style="color: #3498db; margin-bottom: 20px;">
+        ✏️ Editing: <strong>{{ post.title }}</strong>
+    </p>
+    {% endif %}
+    
+    <form method="POST" style="background: #f8f9fa; padding: 30px; border-radius: 10px;">
+        {% csrf_token %}
+        
+        <!-- Title Field -->
+        <div style="margin-bottom: 25px;">
+            <label for="id_title" style="display: block; margin-bottom: 8px; font-weight: bold; color: #2c3e50;">
+                Title:
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+            <div style="color: #e74c3c; margin-top: 5px;">
+                {{ form.title.errors }}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Content Field -->
+        <div style="margin-bottom: 25px;">
+            <label for="id_content" style="display: block; margin-bottom: 8px; font-weight: bold; color: #2c3e50;">
+                Content:
+            </label>
+            {{ form.content }}
+            {% if form.content.errors %}
+            <div style="color: #e74c3c; margin-top: 5px;">
+                {{ form.content.errors }}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Publish Checkbox -->
+        <div style="margin-bottom: 30px; padding: 15px; background: white; border-radius: 5px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                {{ form.is_published }}
+                <span style="font-weight: bold; color: #2c3e50;">
+                    {% if post and post.is_published %}
+                        ✅ Published (uncheck to save as draft)
+                    {% else %}
+                        Publish this post immediately
+                    {% endif %}
+                </span>
+            </label>
+            <small style="display: block; margin-top: 5px; color: #7f8c8d;">
+                {% if post and not post.is_published %}
+                    This post is currently a draft. Check to publish it.
+                {% else %}
+                    If unchecked, post will be saved as draft.
+                {% endif %}
+            </small>
+        </div>
+        
+        <!-- Submit Buttons -->
+        <div style="display: flex; gap: 15px;">
+            <button type="submit" class="btn btn-success" style="flex: 1;">
+                💾 {{ post|yesno:"Save Changes,Create Post" }}
+            </button>
+            
+            {% if post %}
+            <a href="{% url 'post_detail' post.id %}" class="btn" style="flex: 0.5;">
+                ❌ Cancel
+            </a>
+            {% else %}
+            <a href="{% url 'post_list' %}" class="btn" style="flex: 0.5;">
+                ❌ Cancel
+            </a>
+            {% endif %}
+        </div>
+        
+        <!-- Danger Zone (Only for Edit) -->
+        {% if post %}
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #ff6b6b;">
+            <h3 style="color: #e74c3c;">⚠️ Danger Zone</h3>
+            <p>Permanently delete this post:</p>
+            <a href="{% url 'post_delete' post.id %}" class="btn btn-danger">
+                🗑️ Delete Post
+            </a>
+            <small style="display: block; margin-top: 5px; color: #666;">
+                This action cannot be undone.
+            </small>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

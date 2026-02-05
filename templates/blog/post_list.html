@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Blog Posts - My Django Blog{% endblock %}
+
+{% block content %}
+<h1>📚 All Blog Posts</h1>
+
+<!-- New Post Button -->
+<div style="margin-bottom: 30px;">
+    <a href="{% url 'post_create' %}" class="btn btn-primary">✨ Write New Post</a>
+    <a href="{% url 'post_unpublished' %}" class="btn" style="margin-left: 10px;">📋 View Drafts</a>
+</div>
+
+<!-- Posts Grid -->
+{% if posts %}
+    <div class="posts-grid">
+        {% for post in posts %}
+        <div class="post-card" style="
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+        ">
+            <h2 style="margin-top: 0; color: #2c3e50;">
+                {{ post.title }}
+                {% if not post.is_published %}
+                    <span style="background: #ffeb3b; color: #333; padding: 2px 8px; border-radius: 12px; font-size: 0.7em; margin-left: 10px;">
+                        DRAFT
+                    </span>
+                {% endif %}
+            </h2>
+            
+            <p style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 15px;">
+                📅 {{ post.published_date|date:"F j, Y" }}
+            </p>
+            
+            <p style="color: #555; line-height: 1.6;">
+                {{ post.content|truncatewords:50 }}
+            </p>
+            
+            <div style="margin-top: 20px;">
+                <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">Read More →</a>
+                <a href="{% url 'post_edit' post.id %}" class="btn" style="margin-left: 10px;">✏️ Edit</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <p style="text-align: center; color: #7f8c8d; margin-top: 30px;">
+        Showing {{ posts|length }} post{{ posts|pluralize }}
+    </p>
+    
+{% else %}
+    <div style="text-align: center; padding: 50px; background: #f8f9fa; border-radius: 10px;">
+        <h3 style="color: #7f8c8d;">📝 No posts yet</h3>
+        <p>Be the first to write something amazing!</p>
+        <a href="{% url 'post_create' %}" class="btn btn-primary" style="margin-top: 20px;">
+            ✨ Write Your First Post
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

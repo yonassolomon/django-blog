@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - My Django Blog{% endblock %}
+
+{% block content %}
+<article>
+    <!-- Status Badge -->
+    {% if not post.is_published %}
+    <div style="background: #ffeb3b; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px;">
+        ⚠️ This post is a draft. Only you can see it.
+    </div>
+    {% endif %}
+    
+    <!-- Post Header -->
+    <header style="margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px;">
+        <h1 style="margin-bottom: 10px; color: #2c3e50;">{{ post.title }}</h1>
+        <div style="color: #7f8c8d; font-size: 0.95em;">
+            <span>📅 {{ post.published_date|date:"F j, Y - g:i A" }}</span>
+            <span style="margin-left: 20px;">⏱️ {{ post.content|wordcount|divisibleby:200|yesno:"Long,Short" }} read</span>
+        </div>
+    </header>
+    
+    <!-- Post Content -->
+    <div style="line-height: 1.8; font-size: 1.1em;">
+        {{ post.content|linebreaks }}
+    </div>
+    
+    <!-- Action Buttons -->
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+        <a href="{% url 'post_edit' post.id %}" class="btn btn-primary">✏️ Edit Post</a>
+        <a href="{% url 'post_delete' post.id %}" class="btn btn-danger" style="margin-left: 10px;">🗑️ Delete</a>
+        <a href="{% url 'post_list' %}" class="btn" style="margin-left: 10px;">← Back to All Posts</a>
+    </div>
+</article>
+{% endblock %}
