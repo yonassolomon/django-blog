@@ -14,7 +14,7 @@ def post_list(request):
     # Get data from database
     posts=Post.objects.filter(is_published=True)
     # Prepare context (data for template)
-    context = {
+    context = { # This is a dictionary of data we send to the template
         'posts': posts,
         'page_title': 'Published Blog Posts',
     }
