@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 
 {% block title %}Blog Posts - My Django Blog{% endblock %}
-
+ {% block extra_css %}
+ <style>
+    .post-card {
+            transition: all 0.3s ease;
+        }
+        .post-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+</style>
+ {% endblock  %}
 {% block content %}
 <h1>📚 All Blog Posts</h1>
 
@@ -16,7 +26,7 @@
     <div class="posts-grid">
         {% for post in posts %}
         <div class="post-card" style="
-            background: white;
+            background: rgba(33, 205, 76, 0.9);
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
@@ -32,11 +42,11 @@
                 {% endif %}
             </h2>
             
-            <p style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 15px;">
+            <p style="color: #000000; font-size: 0.9em; margin-bottom: 15px;">
                 📅 {{ post.published_date|date:"F j, Y" }}
             </p>
             
-            <p style="color: #555; line-height: 1.6;">
+            <p style="color: #070606; line-height: 1.6;">
                 {{ post.content|truncatewords:50 }}
             </p>
             
