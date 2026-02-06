@@ -13,7 +13,7 @@ from .forms import PostForm  # ← NEW LINE
 from django.contrib import messages
 def post_list(request):
     # Get data from database
-    posts=Post.objects.filter(is_published=True)
+    posts=Post.objects.all() # we can use .filter() to filter data let say posts=Post.objects.filter(is_published=True)
     # Prepare context (data for template)
     context = { # This is a dictionary of data we send to the template
         'posts': posts,
