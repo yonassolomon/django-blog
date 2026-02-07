@@ -1,6 +1,8 @@
+{% extends 'base.html' %}
 <html>
     <head>
         <title>{{page_title}}</title>
+        {%  block extra_css %}
         <style>
             .first_title{
                 font-family: 'Arial', sans-serif;
@@ -47,6 +49,8 @@
                 border-radius: 5px;
             }
         </style>
+        {% endblock %}
+        {%block content%}
         <body>
             <h1 class="first_title">wellcome to see the unpublished lists</h1>
             <div>
@@ -69,5 +73,6 @@
                 <a href="/">Home</a>
             </div>
         </body>
+        {% endblock %}
     </head>
 </html>    
