@@ -1,21 +1,31 @@
-<!DOCTYPE>
-<html>
-    <head>
-        <title>Blog Home</title>
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; text-color: #090101; background: #656025; }
-            .container { background: #3481b5; padding: 20px; border-radius: 10px; }
-            footer { text-align: center; margin-top: 40px; color: #888; }
-        </style>    
-    </head>
-    <body>
-        <h1>{{ title }}</h1>
-        <div class="container">
-            <h1>Welcome to the Blog</h1>
-        <p><a href="/blog/">View All Posts</a></p>
-        </div>
-        <footer>
-            &copy; 2024 My Blog
-        </footer>
-    </body>    
-</html>
+{% extends "base.html" %}
+
+{% block title %}Blog Home - My Django Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .header_title {
+        font-size: 2.5em;
+        color: #000000;
+        text-align: center;
+        margin-top: 50px;
+        margin-bottom: 30px;
+    }
+    .aboutus {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<header>
+    <h1 class="header_title">
+        {{title}}
+    </h1>
+    <div class="aboutus">
+        <a href="{% url 'post_list' %}" class="btn btn-primary">📚 View All Blog Posts</a>
+        <a href="{% url 'post_create' %}" class="btn btn-success" style="margin-left: 10px;">✍️ Write Your First Post</a>
+        <a href="{% url 'about_page' %}" class="btn btn-info" style="margin-left: 10px;">ℹ️ About Us</a>
+    </div>
+</header>
+{% endblock  %}

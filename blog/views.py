@@ -58,7 +58,7 @@ def post_create(request):
             return redirect('post_detail', post_id=post.id)
             # Think: "Go to /blog/1/ to see the new post"
         else:
-            message.error(request,"❌ Please fix the errors below.")
+            messages.error(request,"❌ Please fix the errors below.")
     # LINE 7: If NOT POST (user just opened page)
     else:
         # Think: "User clicked 'New Post' link"
