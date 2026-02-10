@@ -11,23 +11,51 @@ from django.http import HttpResponse
 from .models import Post
 from .forms import PostForm  # ← NEW LINE
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import Http404
+
 def post_list(request):
-    # Get data from database
-    posts=Post.objects.all() # we can use .filter() to filter data let say posts=Post.objects.filter(is_published=True)
-    # Prepare context (data for template)
-    context = { # This is a dictionary of data we send to the template
+    """Show blog posts - users see only their own, admin sees all"""
+    if request.user.is_staff or request.user.is_superuser:
+        # Admin sees ALL posts
+        posts = Post.objects.all().order_by('-published_date')
+    elif request.user.is_authenticated:
+        # Regular users see only THEIR posts
+        posts = Post.objects.filter(author=request.user).order_by('-published_date')
+    else:
+        # Guests see only published posts
+        posts = Post.objects.filter(is_published=True).order_by('-published_date')
+    
+    context = {
         'posts': posts,
-        'page_title': 'Published Blog Posts',
+        'page_title': 'Blog Posts',
+        'user': request.user,
     }
     return render(request, 'blog/post_list.html', context)
 
+@login_required
 def post_unpublished(request):
-    posts=Post.objects.filter(is_published=False)
-    context={
-        'posts':posts,
-        'page_title':'Unpublished Blog Posts',
+    """Show unpublished posts - users see only their own, admin sees all"""
+    if request.user.is_staff or request.user.is_superuser:
+        # Admin sees ALL drafts
+        posts = Post.objects.filter(is_published=False).order_by('-published_date')
+        page_title = "All Draft Posts (Admin View)"
+    elif request.user.is_authenticated:
+        # Regular users see only THEIR drafts
+        posts = Post.objects.filter(
+            author=request.user, 
+            is_published=False
+        ).order_by('-published_date')
+        page_title = f"Your Draft Posts ({request.user.username})"
+    else:
+        # Guests shouldn't see drafts - redirect to login
+        return redirect('login')
+    
+    context = {
+        'posts': posts,
+        'page_title': page_title,
     }
-    return render(request,'blog/post_unpublished.html',context)
+    return render(request, 'blog/post_unpublished.html', context)
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -35,48 +63,27 @@ def post_detail(request, post_id):
     return render(request, 'blog/post_detail.html', context)
 
 # LINE 1: Define a view function called post_create
+@login_required
 def post_create(request):
-    # Think: "This function handles creating new posts"
-    
-    # LINE 2: Check if user submitted the form
     if request.method == 'POST':
-        # Think: "User clicked SAVE button"
-        
-        # LINE 3: Create form with submitted data
         form = PostForm(request.POST)
-        # Think: "Fill form with what user typed"
-        
-        # LINE 4: Check if data is valid
         if form.is_valid():
-            # Think: "No errors in form data"
-            
-            # LINE 5: Save to database and get post object
-            post = form.save()
-            # Think: "Create new Post in database"
-            messages.success(request, f"✅ Post '{post.title}' created successfully!")
-            # LINE 6: Redirect to the new post's page
+            post = form.save(commit=False)
+            post.author = request.user  # Set current user as author
+            post.save()
+            messages.success(request, "✅ Post created successfully!")
             return redirect('post_detail', post_id=post.id)
-            # Think: "Go to /blog/1/ to see the new post"
-        else:
-            messages.error(request,"❌ Please fix the errors below.")
-    # LINE 7: If NOT POST (user just opened page)
     else:
-        # Think: "User clicked 'New Post' link"
-        
-        # LINE 8: Show empty form
         form = PostForm()
-        # Think: "Create blank form"
     
-    # LINE 9: Prepare data for template
-    context = {'form': form, 'title': 'Create New Post'}
-    # Think: "Package form and title for HTML page"
-    
-    # LINE 10: Show the form page
-    return render(request, 'blog/post_form.html', context)
-    # Think: "Display the form HTML with our data"
+    return render(request, 'blog/post_form.html', {'form': form, 'title': 'Create New Post'})
 
+@login_required
 def post_edit(request,post_id):
     post=get_object_or_404(Post,id=post_id)
+     # Check if user owns this post OR is admin
+    if post.author != request.user and not request.user.is_staff:
+        raise Http404("You don't have permission to edit this post.")
     if request.method=='POST':
         form=PostForm(request.POST,instance=post)
         if form.is_valid:
@@ -91,10 +98,13 @@ def post_edit(request,post_id):
     }          
     return render(request,'blog/post_form.html',context)
 
+@login_required
 def post_delete(request, post_id):
     """Delete a blog post with confirmation"""
     post = get_object_or_404(Post, id=post_id)
-    
+    # Check if user owns this post OR is admin
+    if post.author != request.user and not request.user.is_staff:
+        raise Http404("You don't have permission to delete this post.")
     if request.method == 'POST':
         # User confirmed deletion
         post.delete()  # ← Just one line deletes from database!
@@ -106,3 +116,4 @@ def post_delete(request, post_id):
         'title': 'Delete Post'
     }
     return render(request, 'blog/post_confirm_delete.html', context)
+

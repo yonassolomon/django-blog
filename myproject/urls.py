@@ -17,9 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from . import views
+from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.homepage,name='homepage'),
     path('about/',views.about_page,name='about_page'),
     path('blog/',include('blog.urls')),
+     # 🔐 AUTHENTICATION URLs (ADD THESE)
+    path('accounts/login/', 
+     auth_views.LoginView.as_view(
+         template_name='accounts/login.html',
+         redirect_authenticated_user=True,
+         next_page='/'  # ← REDIRECT TO HOME AFTER LOGIN
+     ), 
+     name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('accounts/register/', views.register, name='register'),
 ]

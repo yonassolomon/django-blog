@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - My Django Blog{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 50px auto;">
+    <h1 style="text-align: center; margin-bottom: 30px;">📝 Create Account</h1>
+    
+    <form method="POST" style="background: #f8f9fa; padding: 30px; border-radius: 10px;">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">
+                {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.errors %}
+            <div style="color: #e74c3c; font-size: 0.9em; margin-top: 5px;">
+                {{ field.errors }}
+            </div>
+            {% endif %}
+            {% if field.help_text %}
+            <small style="color: #7f8c8d; display: block; margin-top: 5px;">
+                {{ field.help_text }}
+            </small>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 20px;">
+            🎉 Create Account
+        </button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <p>Already have an account? 
+            <a href="{% url 'login' %}" style="color: #3498db;">Login here</a>
+        </p>
+        <p><a href="/" style="color: #7f8c8d;">← Back to Home</a></p>
+    </div>
+</div>
+{% endblock %}

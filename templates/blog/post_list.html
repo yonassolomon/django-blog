@@ -25,37 +25,29 @@
 {% if posts %}
     <div class="posts-grid">
         {% for post in posts %}
-        <div class="post-card" style="
-            background: rgba(33, 205, 76, 0.9);
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-left: 5px solid #3498db;
-        ">
-            <h2 style="margin-top: 0; color: #2c3e50;">
-                {{ post.title }}
-                {% if not post.is_published %}
-                    <span style="background: #ffeb3b; color: #333; padding: 2px 8px; border-radius: 12px; font-size: 0.7em; margin-left: 10px;">
-                        DRAFT
-                    </span>
-                {% endif %}
-            </h2>
-            
-            <p style="color: #000000; font-size: 0.9em; margin-bottom: 15px;">
-                📅 {{ post.published_date|date:"F j, Y" }}
-            </p>
-            
-            <p style="color: #070606; line-height: 1.6;">
-                {{ post.content|truncatewords:50 }}
-            </p>
-            
-            <div style="margin-top: 20px;">
-                <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">Read More →</a>
-                <a href="{% url 'post_edit' post.id %}" class="btn" style="margin-left: 10px;">✏️ Edit</a>
-            </div>
-        </div>
-        {% endfor %}
+<div class="post-card">
+    <!-- Show author -->
+    <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px;">
+        👤 {{ post.author.username }}
+        {% if not post.is_published %}
+            <span style="background: #ffeb3b; color: #333; padding: 2px 8px; border-radius: 12px; margin-left: 10px;">
+                📝 Draft
+            </span>
+        {% endif %}
+    </div>
+    
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content|truncatewords:30 }}</p>
+    
+    <!-- Show edit/delete only if user owns the post -->
+    {% if post.author == user or user.is_staff %}
+    <div>
+        <a href="{% url 'post_edit' post.id %}" class="btn">✏️ Edit</a>
+        <a href="{% url 'post_delete' post.id %}" class="btn btn-danger">🗑️ Delete</a>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
     </div>
     
     <p style="text-align: center; color: #7f8c8d; margin-top: 30px;">
