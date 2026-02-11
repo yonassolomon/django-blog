@@ -1,19 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}Blog Posts - My Django Blog{% endblock %}
- {% block extra_css %}
- <style>
+{% block title %}My Private Blog{% endblock %}
+
+{% block extra_css %}
+<style>
     .post-card {
-            transition: all 0.3s ease;
-        }
-        .post-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
-        }
+        transition: all 0.3s ease;
+    }
+    .post-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+    }
 </style>
- {% endblock  %}
+{% endblock %}
+
 {% block content %}
-<h1>📚 All Blog Posts</h1>
+<h1>📓 {{ page_title }}</h1>
+
+{% if user.is_staff %}
+<p style="color: #666; margin-bottom: 20px;">
+    ⚙️ <strong>Admin View</strong>: You can see all posts from all users.
+</p>
+{% else %}
+<p style="color: #666; margin-bottom: 20px;">
+    👋 This is your <strong>private journal</strong>. Only you can see these posts.
+</p>
+{% endif %}
 
 <!-- New Post Button -->
 <div style="margin-bottom: 30px;">
@@ -25,29 +37,48 @@
 {% if posts %}
     <div class="posts-grid">
         {% for post in posts %}
-<div class="post-card">
-    <!-- Show author -->
-    <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px;">
-        👤 {{ post.author.username }}
-        {% if not post.is_published %}
-            <span style="background: #ffeb3b; color: #333; padding: 2px 8px; border-radius: 12px; margin-left: 10px;">
-                📝 Draft
-            </span>
-        {% endif %}
-    </div>
-    
-    <h2>{{ post.title }}</h2>
-    <p>{{ post.content|truncatewords:30 }}</p>
-    
-    <!-- Show edit/delete only if user owns the post -->
-    {% if post.author == user or user.is_staff %}
-    <div>
-        <a href="{% url 'post_edit' post.id %}" class="btn">✏️ Edit</a>
-        <a href="{% url 'post_delete' post.id %}" class="btn btn-danger">🗑️ Delete</a>
-    </div>
-    {% endif %}
-</div>
-{% endfor %}
+        <div class="post-card">
+            <!-- Show author (only for admin view) -->
+            {% if user.is_staff %}
+            <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px;">
+                👤 Author: {{ post.author.username }}
+                {% if not post.is_published %}
+                    <span style="background: #ffeb3b; color: #333; padding: 2px 8px; border-radius: 12px; margin-left: 10px;">
+                        📝 Draft
+                    </span>
+                {% endif %}
+            </div>
+            {% else %}
+            <!-- Regular users see status only -->
+            {% if not post.is_published %}
+            <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px;">
+                <span style="background: #ffeb3b; color: #333; padding: 2px 8px; border-radius: 12px;">
+                    📝 Draft
+                </span>
+            </div>
+            {% endif %}
+            {% endif %}
+            
+            <h2>{{ post.title }}</h2>
+            <p style="color: #7f8c8d; font-size: 0.9em;">
+                📅 {{ post.published_date|date:"F j, Y" }}
+            </p>
+            <p>{{ post.content|truncatewords:30 }}</p>
+            
+            <!-- Show edit/delete only if user owns the post -->
+            {% if post.author == user or user.is_staff %}
+            <div style="margin-top: 15px;">
+                <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">Read More →</a>
+                <a href="{% url 'post_edit' post.id %}" class="btn" style="margin-left: 10px;">✏️ Edit</a>
+                <a href="{% url 'post_delete' post.id %}" class="btn btn-danger" style="margin-left: 10px;">🗑️ Delete</a>
+            </div>
+            {% else %}
+            <div style="margin-top: 15px;">
+                <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">Read More →</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
     </div>
     
     <p style="text-align: center; color: #7f8c8d; margin-top: 30px;">
@@ -56,8 +87,20 @@
     
 {% else %}
     <div style="text-align: center; padding: 50px; background: #f8f9fa; border-radius: 10px;">
-        <h3 style="color: #7f8c8d;">📝 No posts yet</h3>
-        <p>Be the first to write something amazing!</p>
+        <h3 style="color: #7f8c8d;">
+            {% if user.is_staff %}
+                📝 No posts in the system
+            {% else %}
+                📝 Your journal is empty
+            {% endif %}
+        </h3>
+        <p>
+            {% if user.is_staff %}
+                No users have created posts yet.
+            {% else %}
+                Start your private journal with your first entry!
+            {% endif %}
+        </p>
         <a href="{% url 'post_create' %}" class="btn btn-primary" style="margin-top: 20px;">
             ✨ Write Your First Post
         </a>

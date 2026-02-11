@@ -4,11 +4,14 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib import messages
 
+from django.contrib.auth.decorators import login_required
+
+@login_required  # ← REQUIRE LOGIN FOR HOMEPAGE TOO
 def homepage(request):
-    context={
-        'title':' Welcome to Home page'
+    context = {
+        'title': 'Private Blog Home'
     }
-    return render(request,'blog/home_page.html',context)
+    return render(request, 'blog/home_page.html', context)
 
 def about_page(request):
     return HttpResponse("wellcome to about us page🫡")

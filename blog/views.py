@@ -14,21 +14,23 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 
+from django.contrib.auth.decorators import login_required
+
+@login_required  # ← REQUIRE LOGIN
 def post_list(request):
-    """Show blog posts - users see only their own, admin sees all"""
+    """Private blog - users see only their own posts"""
     if request.user.is_staff or request.user.is_superuser:
         # Admin sees ALL posts
         posts = Post.objects.all().order_by('-published_date')
-    elif request.user.is_authenticated:
+        page_title = "All Posts (Admin View)"
+    else:
         # Regular users see only THEIR posts
         posts = Post.objects.filter(author=request.user).order_by('-published_date')
-    else:
-        # Guests see only published posts
-        posts = Post.objects.filter(is_published=True).order_by('-published_date')
+        page_title = f"Your Posts ({request.user.username})"
     
     context = {
         'posts': posts,
-        'page_title': 'Blog Posts',
+        'page_title': page_title,
         'user': request.user,
     }
     return render(request, 'blog/post_list.html', context)
