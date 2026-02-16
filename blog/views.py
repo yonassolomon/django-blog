@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from .models import Post
 
 # Add this line with your other imports:
-from .forms import PostForm  
+from .forms import PostForm , ProfileForm 
 
 # Your imports should look like:
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,8 +14,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 
+from django.contrib.auth.models import User  # ← ADD THIS LINE!
 from django.contrib.auth.decorators import login_required
-
+from .models import Profile
 @login_required  # ← REQUIRE LOGIN
 def post_list(request):
     """Private blog - users see only their own posts"""
@@ -119,3 +120,43 @@ def post_delete(request, post_id):
     }
     return render(request, 'blog/post_confirm_delete.html', context)
 
+
+@login_required
+def profile(request, username=None):
+    if username:
+        user = get_object_or_404(User, username=username)
+        # Use get_or_create to handle users without profiles,if profile doesn't exist, it will be created automatically
+        profile, created = Profile.objects.get_or_create(user=user)
+        is_owner = (request.user == user)
+    else:
+        # Use get_or_create for current user too
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        is_owner = True
+    
+    user_posts = Post.objects.filter(author=profile.user).order_by('-published_date')
+    
+    context = {
+        'profile': profile,
+        'user_posts': user_posts,
+        'is_owner': is_owner,
+    }
+    return render(request, 'blog/profile.html', context)
+
+@login_required
+def edit_profile(request):
+    profile = Profile.objects.get_or_create(user=request.user)[0]
+    
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '✅ Profile updated successfully!')
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=profile)
+    
+    context = {
+        'form': form,
+        'title': 'Edit Profile'
+    }
+    return render(request, 'blog/profile_form.html', context)

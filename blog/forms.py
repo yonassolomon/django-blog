@@ -21,3 +21,14 @@ class PostForm(forms.ModelForm):
         # LINE 6: Which fields to include
         fields = ['title', 'content', 'is_published']
         # Think: "Show these 3 fields in the form"
+
+from .models import Profile
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'profile_pic', 'website', 'location', 'birth_date']
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+            'bio': forms.Textarea(attrs={'rows': 3}),
+        }        
