@@ -19,19 +19,32 @@ from django.contrib.auth.decorators import login_required
 from .models import Profile
 @login_required  # ← REQUIRE LOGIN
 def post_list(request):
-    """Private blog - users see only their own posts"""
+    """Show blog posts with search functionality"""
+    # Get search query from URL
+    search_query = request.GET.get('q', '')
+    # Base queryset based on user type
     if request.user.is_staff or request.user.is_superuser:
-        # Admin sees ALL posts
-        posts = Post.objects.all().order_by('-published_date')
-        page_title = "All Posts (Admin View)"
+        posts = Post.objects.all()
+    elif request.user.is_authenticated:
+        posts = Post.objects.filter(author=request.user)
     else:
-        # Regular users see only THEIR posts
-        posts = Post.objects.filter(author=request.user).order_by('-published_date')
-        page_title = f"Your Posts ({request.user.username})"
+        posts = Post.objects.filter(is_published=True)
+    
+    # Apply search filter if there's a query
+    if search_query:
+        posts = posts.filter(title__icontains=search_query)
+        result_count = posts.count()
+    else:
+        result_count = None
+    
+    # Order by date
+    posts = posts.order_by('-published_date')
     
     context = {
         'posts': posts,
-        'page_title': page_title,
+        'page_title': 'Blog Posts',
+        'search_query': search_query,
+        'result_count': result_count,
         'user': request.user,
     }
     return render(request, 'blog/post_list.html', context)

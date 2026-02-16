@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}My Private Blog{% endblock %}
+{% block title %}Blog Posts - My Django Blog{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -11,26 +11,115 @@
         transform: translateY(-5px) scale(1.02);
         box-shadow: 0 8px 12px rgba(0,0,0,0.2);
     }
+    
+    /* Search Bar Styles */
+    .search-container {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 12px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .search-button {
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .search-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .clear-search {
+        color: #666;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        background: #f0f0f0;
+        transition: all 0.3s ease;
+    }
+    
+    .clear-search:hover {
+        background: #e0e0e0;
+    }
+    
+    .result-info {
+        margin-top: 15px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        color: #666;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1>📓 {{ page_title }}</h1>
-
-{% if user.is_staff %}
-<p style="color: #666; margin-bottom: 20px;">
-    ⚙️ <strong>Admin View</strong>: You can see all posts from all users.
-</p>
-{% else %}
-<p style="color: #666; margin-bottom: 20px;">
-    👋 This is your <strong>private journal</strong>. Only you can see these posts.
-</p>
-{% endif %}
+<h1>📚 {{ page_title }}</h1>
 
 <!-- New Post Button -->
 <div style="margin-bottom: 30px;">
     <a href="{% url 'post_create' %}" class="btn btn-primary">✨ Write New Post</a>
     <a href="{% url 'post_unpublished' %}" class="btn" style="margin-left: 10px;">📋 View Drafts</a>
+</div>
+
+<!-- 🔍 SEARCH SECTION -->
+<div class="search-container">
+    <form method="GET" action="{% url 'post_list' %}" class="search-form">
+        <input type="text" 
+               name="q" 
+               class="search-input"
+               placeholder="Search by title..." 
+               value="{{ search_query }}"
+               autocomplete="off">
+        <button type="submit" class="search-button">
+            🔍 Search
+        </button>
+        {% if search_query %}
+        <a href="{% url 'post_list' %}" class="clear-search">✖ Clear</a>
+        {% endif %}
+    </form>
+    
+    {% if search_query %}
+    <div class="result-info">
+        {% if posts %}
+            Found <strong>{{ result_count }}</strong> post{{ result_count|pluralize }} matching "{{ search_query }}"
+        {% else %}
+            No posts found matching "{{ search_query }}"
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 
 <!-- Posts Grid -->
@@ -88,22 +177,29 @@
 {% else %}
     <div style="text-align: center; padding: 50px; background: #f8f9fa; border-radius: 10px;">
         <h3 style="color: #7f8c8d;">
-            {% if user.is_staff %}
+            {% if search_query %}
+                🔍 No results for "{{ search_query }}"
+            {% elif user.is_staff %}
                 📝 No posts in the system
             {% else %}
                 📝 Your journal is empty
             {% endif %}
         </h3>
         <p>
-            {% if user.is_staff %}
+            {% if search_query %}
+                Try different keywords or 
+                <a href="{% url 'post_list' %}">clear search</a>
+            {% elif user.is_staff %}
                 No users have created posts yet.
             {% else %}
                 Start your private journal with your first entry!
             {% endif %}
         </p>
+        {% if not search_query %}
         <a href="{% url 'post_create' %}" class="btn btn-primary" style="margin-top: 20px;">
             ✨ Write Your First Post
         </a>
+        {% endif %}
     </div>
 {% endif %}
 {% endblock %}
