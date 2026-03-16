@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-%0zbrc)3wlf@3muhp^vgg6e3$&a$&vnlak8c^#51&thnbs3q=m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', '.railway.app']
+
 
 
 # Application definition
@@ -129,3 +129,23 @@ try:
         Profile.objects.get_or_create(user=user)
 except:
     pass  # Runs on every server start
+
+
+# Allow all Railway domains
+CSRF_TRUSTED_ORIGINS = [
+    'https://django-blog-production-6708.up.railway.app',
+    'https://*.up.railway.app',  # This will allow all Railway subdomains
+]
+
+# Also update ALLOWED_HOSTS to include Railway
+ALLOWED_HOSTS = [
+    'django-blog-production-6708.up.railway.app',
+    '.up.railway.app',  # This allows all subdomains
+    'localhost',
+    '127.0.0.1',
+]
+
+# Security settings (recommended for production)
+CSRF_COOKIE_SECURE = True  # Send cookie only over HTTPS
+SESSION_COOKIE_SECURE = True  # Send session cookie only over HTTPS
+CSRF_COOKIE_SAMESITE = 'Lax'  # Or 'Strict' for more security
