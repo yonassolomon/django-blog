@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}{{ post.title }} - My Django Blog{% endblock %}
+{% block extra_css %}
+<style>
+    /* Responsive action buttons */
+    @media (max-width: 768px) {
+        .btn {
+            display: block;
+            margin: 10px 0;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <article>
